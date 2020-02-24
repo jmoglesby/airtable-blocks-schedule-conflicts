@@ -22,7 +22,8 @@ function PrintRecordsBlock() {
     const globalConfig = useGlobalConfig();
 
     // We want to render the list of records in this table.
-    const table = base.getTableByName('Appointments');
+    const appointmentsTable = base.getTableByName('Appointments');
+    const peopleTable = base.getTableByName('People');
 
     // The view ID is stored in globalConfig using ViewPickerSynced.
     const viewId = globalConfig.get(GlobalConfigKeys.VIEW_ID);
@@ -31,6 +32,11 @@ function PrintRecordsBlock() {
     // instead of getViewById. getViewByIdIfExists will return null
     // if the view doesn't exist.
     const view = table.getViewByIdIfExists(viewId);
+
+    // Get people
+    // Loop through people; for each, find all appointments in view
+    // Loop through all person-appointments and check for conflicts
+    // Store conflicting appointment as set in "conflicts" var to display
 
     return (
         <div>
