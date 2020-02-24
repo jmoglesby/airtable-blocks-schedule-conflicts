@@ -1,0 +1,15 @@
+{
+    "dependencies": {
+        "@airtable/blocks": "0.0.42",
+        "react": "^16.9.0",
+        "react-dom": "^16.9.0"
+    },
+    "devDependencies": {
+        "eslint": "^6.3.0",
+        "eslint-plugin-react": "^7.14.3",
+        "eslint-plugin-react-hooks": "^2.0.1"
+    },
+    "scripts": {
+        "lint": "eslint frontend"
+    }
+}
