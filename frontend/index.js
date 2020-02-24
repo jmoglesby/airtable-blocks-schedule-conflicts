@@ -36,7 +36,7 @@ function PrintRecordsBlock() {
     return (
         <div>
             <Toolbar table={table} />
-            HI
+            <Report view={view} />
         </div>
     );
 }
@@ -86,9 +86,9 @@ function Record({record}) {
     // Each record in the "Collections" table is linked to records
     // in the "Artists" table. We want to show the Artists for
     // each collection.
-    const linkedTable = base.getTableByName('Artists');
+    const linkedTable = base.getTableByName('People');
     const linkedRecords = useRecords(
-        record.selectLinkedRecordsFromCell('Artists', {
+        record.selectLinkedRecordsFromCell('Attendees', {
             // Keep the linked records sorted by their primary field.
             sorts: [{field: linkedTable.primaryField, direction: 'asc'}],
         }),
@@ -100,59 +100,21 @@ function Record({record}) {
             <table style={{borderCollapse: 'collapse', width: '100%'}}>
                 <thead>
                     <tr>
-                        <td
-                            style={{
-                                whiteSpace: 'nowrap',
-                                verticalAlign: 'bottom',
-                            }}
-                        >
-                            <Heading variant="caps" size="xsmall" marginRight={3} marginBottom={0}>
-                                On display?
-                            </Heading>
-                        </td>
                         <td style={{width: '50%', verticalAlign: 'bottom'}}>
                             <Heading variant="caps" size="xsmall" marginRight={3} marginBottom={0}>
-                                Artist name
-                            </Heading>
-                        </td>
-                        <td style={{width: '50%', verticalAlign: 'bottom'}}>
-                            <Heading variant="caps" size="xsmall" marginBottom={0}>
-                                Artworks
+                                Attendees
                             </Heading>
                         </td>
                     </tr>
                 </thead>
                 <tbody>
                     {linkedRecords.map(linkedRecord => {
-                        // Render a check or an x depending on if the artist is on display or not.
-                        const isArtistOnDisplay = linkedRecord.getCellValue('On Display?');
                         return (
                             <tr key={linkedRecord.id} style={{borderTop: '2px solid #ddd'}}>
-                                <td style={{textAlign: 'center', whiteSpace: 'nowrap'}}>
-                                    <Box
-                                        display="inline-flex"
-                                        alignItems="center"
-                                        justifyContent="center"
-                                        width="16px"
-                                        height="16px"
-                                        marginRight={3}
-                                        borderRadius="100%"
-                                        backgroundColor={isArtistOnDisplay ? 'green' : 'red'}
-                                        textColor="white"
-                                    >
-                                        <Icon name={isArtistOnDisplay ? 'check' : 'x'} size={12} />
-                                    </Box>
-                                </td>
                                 <td style={{width: '50%'}}>
                                     <Text marginRight={3}>
                                         {linkedRecord.primaryCellValueAsString}
                                     </Text>
-                                </td>
-                                <td style={{width: '50%'}}>
-                                    <CellRenderer
-                                        record={linkedRecord}
-                                        field={linkedTable.getFieldByName('Attachments')}
-                                    />
                                 </td>
                             </tr>
                         );
