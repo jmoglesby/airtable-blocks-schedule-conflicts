@@ -4,10 +4,7 @@ import {
     useRecords,
     useGlobalConfig,
     Box,
-    CellRenderer,
     Heading,
-    Icon,
-    Text,
     ViewPickerSynced,
     RecordCard,
 } from '@airtable/blocks/ui';
@@ -17,13 +14,23 @@ const GlobalConfigKeys = {
     VIEW_ID: 'viewId',
 };
 
+const BaseSpecificNames = {
+    PEOPLE_TABLE: 'People',
+    APPOINTMENTS_TABLE: 'Appointments',
+    PEOPLE_APPOINTMENTS_LINK_FIELD: 'Appointments',
+    PEOPLE_NAME_FIELD: 'Name',
+    APPOINTMENTS_NAME_FIELD: 'Name',
+    APPOINTMENTS_START_FIELD: 'Start',
+    APPOINTMENTS_END_FIELD: 'End'
+}
+
 function ScheduleConflictsBlock() {
     const base = useBase();
     const globalConfig = useGlobalConfig();
 
     // We want to render the list of records in this table.
-    const appointmentsTable = base.getTableByName('Appointments');
-    const peopleTable = base.getTableByName('People');
+    const appointmentsTable = base.getTableByName(BaseSpecificNames.APPOINTMENTS_TABLE);
+    const peopleTable = base.getTableByName(BaseSpecificNames.PEOPLE_TABLE);
 
     // The view ID is stored in globalConfig using ViewPickerSynced.
     const viewId = globalConfig.get(GlobalConfigKeys.VIEW_ID);
@@ -32,36 +39,45 @@ function ScheduleConflictsBlock() {
     const people = useRecords(peopleTable);
     const appointments = useRecords(appointmentsView);
 
+    // Get a person's linked appointments and match them with the person
     const peopleAppointments = people.map(person => {
-        const personLinkedAppointments = person.getCellValue("Appointments");
+        const personLinkedAppointments = person.getCellValue(BaseSpecificNames.PEOPLE_APPOINTMENTS_LINK_FIELD);
         const appointmentIds = personLinkedAppointments.map(a => a.id);
 
         const personAppointments = appointments.filter(a => appointmentIds.includes(a.id));
 
-        const personAppntmntsObj = {};
-        personAppntmntsObj.person = person.getCellValue('Name');
-        personAppntmntsObj.appointments = personAppointments;
+        const personAppntmntsObj = {
+            person: person.getCellValue(BaseSpecificNames.PEOPLE_NAME_FIELD),
+            appointments: personAppointments
+        };
         return personAppntmntsObj;
     });
 
+    // As we loop through person-appointment pairings, store any conflicts found in array
     const conflicts = [];
-    peopleAppointments.forEach(personAppntmnts => {
-        const person = personAppntmnts.person;
-        const appointments = personAppntmnts.appointments;
 
-        const conflict = {};
+    // Loop and identify conflicts
+    peopleAppointments.forEach(personAppntmnts => {
+        const { person, appointments } = personAppntmnts;
+
+        // Use a Set so that if an appointment is found to conflict with multiple other
+        // appointments, it still only shows in the display once
         const conflictingRecords = new Set();
         const appointmentsChecked = [];
         for (var i=0; i < appointments.length; i++) {
-            let start = new Date(appointments[i].getCellValue("Start"));
-            let end = new Date(appointments[i].getCellValue("End"));
+            let start = new Date(appointments[i].getCellValue(BaseSpecificNames.APPOINTMENTS_START_FIELD));
+            let end = new Date(appointments[i].getCellValue(BaseSpecificNames.APPOINTMENTS_END_FIELD));
             let appt = appointments[i];
+
+            // since we check each appointment against all others,
+            // we only want to do it once per appointment - we keep track here
             appointmentsChecked.push(appt.id);
 
             appointments.forEach(compareAppntmnt => {
+                // don't check against appointments that have already been checked
                 if (!appointmentsChecked.includes(compareAppntmnt.id)) {
-                    let compareStart = new Date(compareAppntmnt.getCellValue("Start"));
-                    let compareEnd = new Date(compareAppntmnt.getCellValue("End"));
+                    let compareStart = new Date(compareAppntmnt.getCellValue(BaseSpecificNames.APPOINTMENTS_START_FIELD));
+                    let compareEnd = new Date(compareAppntmnt.getCellValue(BaseSpecificNames.APPOINTMENTS_END_FIELD));
 
                     if (
                         // #1 : Preceeding Overlap
@@ -71,6 +87,7 @@ function ScheduleConflictsBlock() {
                         // #3 : Contained (inclusive)
                         (compareStart <= start && compareEnd >= end)
                     ) {
+                        // we found a conflict, so add both records to the Set
                         conflictingRecords.add(appt).add(compareAppntmnt);
                     }
                 }
@@ -78,21 +95,25 @@ function ScheduleConflictsBlock() {
         };
 
         if (conflictingRecords.size > 0) {
-            conflict.person = person;
-            conflict.conflictingAppointments = [...conflictingRecords];
+            const conflict = {person: person, conflictingAppointments: [...conflictingRecords]};
             conflicts.push(conflict);
         }
     });
 
-    console.log(conflicts);
+    // If we have conflicts, display a ConflictContainer with all person-conflict pairings
+    // If we have no conflicts, display a NoConflictsHeader
     const conflictsDisplay = conflicts.length > 0 ? conflicts.map((conflict, index) => {
-        return <ConflictContainer key={index} person={conflict.person} records={conflict.conflictingAppointments} />
-    }) : null;
+        return <ConflictContainer
+                    key={index}
+                    person={conflict.person}
+                    records={conflict.conflictingAppointments}
+                />
+    }) : <NoConflictsHeader />;
 
     return (
         <Box paddingX={2} marginX={1}>
-            <h4>Select Appointments view to check conflicts in:</h4>
-            <ViewPickerSynced table={appointmentsTable} globalConfigKey="viewId" />
+            <h4>Select {BaseSpecificNames.APPOINTMENTS_TABLE} view to check conflicts in:</h4>
+            <ViewPickerSynced table={appointmentsTable} globalConfigKey={GlobalConfigKeys.VIEW_ID} />
             {conflictsDisplay}
         </Box>
     );
@@ -100,15 +121,32 @@ function ScheduleConflictsBlock() {
 
 function ConflictContainer({person, records}) {
     const recordsDisplay = records.length > 0 ? records.map((record, index) => {
-        return <RecordCard key={index} record={record} marginBottom={2} />
+        return <RecordCard
+                    key={index}
+                    record={record}
+                    margin={1}
+                    marginBottom={2}
+                />
     }) : null;
 
     return (
-        <Box padding={3} borderBottom="thick">
+        <Box margin={2} padding={3} backgroundColor="mistyrose" border="thick" borderRadius={5}>
             <Heading marginBottom={1}>{person}</Heading>
-            {recordsDisplay}
+            <Box overflowX="auto" paddingRight={3}>
+                {recordsDisplay}
+            </Box>
         </Box>
     );
 };
+
+function NoConflictsHeader() {
+    return (
+        <Box padding={2}>
+            <Heading size="large" textColor="light">
+                No conflicts to display...
+            </Heading>
+        </Box>
+    );
+}
 
 initializeBlock(() => <ScheduleConflictsBlock />);
