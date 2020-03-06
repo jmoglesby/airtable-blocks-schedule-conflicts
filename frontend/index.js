@@ -44,7 +44,7 @@ function ScheduleConflictsBlock() {
         const personLinkedAppointments = person.getCellValue(BaseSpecificNames.PEOPLE_APPOINTMENTS_LINK_FIELD);
         const appointmentIds = personLinkedAppointments.map(a => a.id);
 
-        const personAppointments = appointments.filter(a => appointmentIds.includes(a.id));
+        const personAppointments = appointments ? appointments.filter(a => appointmentIds.includes(a.id)) : [];
 
         const personAppntmntsObj = {
             person: person.getCellValue(BaseSpecificNames.PEOPLE_NAME_FIELD),
