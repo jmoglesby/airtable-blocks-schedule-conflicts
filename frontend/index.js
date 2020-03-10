@@ -14,7 +14,8 @@ import {
     Button,
     Text,
     ColorPalette,
-    Dialog
+    Dialog,
+    ViewportConstraint
 } from '@airtable/blocks/ui';
 import React, {useState} from 'react';
 import { FieldType } from '@airtable/blocks/models';
@@ -30,6 +31,8 @@ const GlobalConfigKeys = {
 };
 
 function ScheduleConflictsBlock() {
+    const VIEWPORT_MIN_WIDTH = 345;
+    const VIEWPORT_MIN_HEIGHT = 200;
     const base = useBase();
     const globalConfig = useGlobalConfig();
     const appointmentsTableId = globalConfig.get(GlobalConfigKeys.APPOINTMENTS_TABLE_ID);
@@ -69,14 +72,16 @@ function ScheduleConflictsBlock() {
 
     if (isShowingSettings) {
         return (
-            <SettingsMenu
-                globalConfig={globalConfig}
-                base={base}
-                peopleTable={peopleTable}
-                appointmentsTable={appointmentsTable}
-                initialSetupDone={initialSetupDone}
-                onDoneClick={() => setIsShowingSettings(false)}
-            />
+            <ViewportConstraint minSize={{width: VIEWPORT_MIN_WIDTH, height: VIEWPORT_MIN_HEIGHT}}>
+                <SettingsMenu
+                    globalConfig={globalConfig}
+                    base={base}
+                    peopleTable={peopleTable}
+                    appointmentsTable={appointmentsTable}
+                    initialSetupDone={initialSetupDone}
+                    onDoneClick={() => setIsShowingSettings(false)}
+                />
+            </ViewportConstraint>
         )
     } else {
         // Get a person's linked appointments and match them with the person
@@ -151,15 +156,18 @@ function ScheduleConflictsBlock() {
         }) : <NoConflictsHeader />;
 
         return (
-            <Box paddingX={2} marginX={1}>
-                <h4>Select {appointmentsTable.name} view to check for conflicts:</h4>
-                <ViewPickerSynced
-                    table={appointmentsTable}
-                    globalConfigKey={GlobalConfigKeys.VIEW_ID}
-                    autoFocus="true"
-                />
-                {conflictsDisplay}
-            </Box>
+            <ViewportConstraint minSize={{width: VIEWPORT_MIN_WIDTH, height: VIEWPORT_MIN_HEIGHT}}>
+                <Box paddingX={2} marginX={1}>
+                    <h4>Select {appointmentsTable.name} view to check for conflicts:</h4>
+                    <ViewPickerSynced
+                        table={appointmentsTable}
+                        globalConfigKey={GlobalConfigKeys.VIEW_ID}
+                        autoFocus="true"
+                        maxWidth="350px"
+                    />
+                    {conflictsDisplay}
+                </Box>
+            </ViewportConstraint>
         );
     }
 }
@@ -251,6 +259,7 @@ function SettingsMenu(props) {
                         globalConfigKey={GlobalConfigKeys.PEOPLE_TABLE_ID}
                         onChange={() => peopleCheckTablesAreNotSame()}
                         size="large"
+                        maxWidth="350px"
                     />
                 </FormField>
                 {props.peopleTable &&
@@ -292,6 +301,7 @@ function SettingsMenu(props) {
                         globalConfigKey={GlobalConfigKeys.APPOINTMENTS_TABLE_ID}
                         onChange={() => apptCheckTablesAreNotSame()}
                         size="large"
+                        maxWidth="350px"
                     />
                 </FormField>
                 {props.appointmentsTable &&
