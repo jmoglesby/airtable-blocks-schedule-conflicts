@@ -45,7 +45,7 @@ function ScheduleConflictsBlock() {
     // Use settings menu to hide away table pickers
     const [isShowingSettings, setIsShowingSettings] = useState(!initialSetupDone);
     useSettingsButton(function() {
-        setIsShowingSettings(!isShowingSettings);
+        initialSetupDone && setIsShowingSettings(!isShowingSettings);
     });
 
     const appointmentsTable = base.getTableByIdIfExists(appointmentsTableId);
@@ -62,7 +62,7 @@ function ScheduleConflictsBlock() {
 
     // The view ID is stored in globalConfig using ViewPickerSynced.
     const viewId = globalConfig.get(GlobalConfigKeys.VIEW_ID);
-    const appointmentsView = viewId ? appointmentsTable.getViewByIdIfExists(viewId) : null;
+    const appointmentsView = initialSetupDone ? appointmentsTable.getViewByIdIfExists(viewId) : null;
 
     const people = useRecords(peopleTable ? peopleTable.selectRecords() : null);
     const appointments = useRecords(appointmentsView ? appointmentsView.selectRecords() : null);
