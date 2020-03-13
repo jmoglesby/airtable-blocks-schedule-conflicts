@@ -1,31 +1,27 @@
-# Print records block
+# Schedule Conflict block
 
-This example block shows artists and their artworks, grouped by collection.
+When added to your base, this block will display scheduling conflicts created in the "Appointments"
+table of your choice, and for the "People/Items" of your choice.
 
-The code shows how to create a printable record layout. It features:
+When scheduling large Programs with many individual events at different locations, and across
+multiple days, it can be difficult to keep tabs on whether or not people have been double booked,
+and scheduling conflicts can cause chaos.
 
--   Many records shown on the same page.
+This block is designed to help with that problem. It will check all events in the selected
+"Appointments" table for instances where an individual "Person" or "Item" from the selected table
+has been scheduled to be in two places at the same time!
 
--   Records printed alongside their linked records.
-
--   Content areas that resize dynamically to the amount of content in a field.
-
--   A button to print the layout.
-
--   The use of `CellRenderer` to display rich base content with very little code.
-
--   Styling that changes, based on the base content.
+For each person/item that has conflicting events/appointments/bookings scheduled, a section will be
+displayed under their name with a list of any offending records, so that they can be expanded and
+rescheduled.
 
 ## How to run this block
 
-1. Create a new base using the
-   [Art Gallery Management template](https://airtable.com/templates/creative/expAZgezgpfCF8wVH/art-gallery-management).
+1. Create a new block in your base (see the [setup guide](/packages/sdk/docs/setup.md))
+   selecting "Schedule Conflict" as your template.
 
-2. Create a new block in your new base (see the [setup guide](/packages/sdk/docs/setup.md))
-   selecting "Print records" as your template.
-
-3. From the root of your new block, run `block run`.
+2. ...
 
 ## See the block running
 
-![Seeing a layout of artists and their artworks grouped by collection, printing the layout](media/block.gif)
+![Setting up and using the Schedule Conflict Block](media/Screen-Recording-2020-03-10-09-03-23.mp4)
