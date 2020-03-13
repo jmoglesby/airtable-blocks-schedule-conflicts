@@ -24,4 +24,4 @@ rescheduled.
 
 ## See the block running
 
-![Setting up and using the Schedule Conflict Block](media/CleanShot 2020-03-13 at 09.02.49.gif)
+![Setting up and using the Schedule Conflict Block](media/sched_conflict_block.gif)
