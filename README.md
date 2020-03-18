@@ -17,8 +17,14 @@ rescheduled.
 
 ## How to add this block to your base
 
-1. Choose 'Remix from GitHub' and paste https://github.com/jmoglesby/at_block_schedule_conflicts as the GitHub repository.
+![How to add this block to your base](media/install_instructions.png)
+
+1. Name your version of the block
+2. Choose 'Remix from GitHub'in the 'Start from an example' section
+3. Paste https://github.com/jmoglesby/at_block_schedule_conflicts as the GitHub repository
+4. Click 'Create Block'
+5. From there, follow [Airtable's SDK instructions](https://airtable.com/developers/blocks/guides/getting-started) to release the Block into your base
 
 ## See the block running
 
-![Setting up and using the Schedule Conflict Block](media/sched_conflict_block.gif)
+![Demo of setting up and using the Schedule Conflict Block](media/sched_conflict_block.gif)
