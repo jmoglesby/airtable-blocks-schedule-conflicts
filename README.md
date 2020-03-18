@@ -15,12 +15,9 @@ For each person/item that has conflicting events/appointments/bookings scheduled
 displayed under their name with a list of any offending records, so that they can be expanded and
 rescheduled.
 
-## How to run this block
+## How to add this block to your base
 
-1. Create a new block in your base (see the [setup guide](/packages/sdk/docs/setup.md))
-   selecting "Schedule Conflict" as your template.
-
-2. ...
+1. Choose 'Remix from GitHub' and paste https://github.com/jmoglesby/at_block_schedule_conflicts as the GitHub repository.
 
 ## See the block running
 
