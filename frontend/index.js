@@ -43,7 +43,7 @@ function ScheduleConflictsBlock() {
     const peopleAppointmentsLinkFieldId = globalConfig.get(GlobalConfigKeys.PEOPLE_APPOINTMENTS_LINK_FIELD_ID);
 
     const initialSetupDone = appointmentsTableId && appointmentsStartFieldId && appointmentsEndFieldId &&
-                            peopleTableId && peopleNameFieldId && peopleAppointmentsLinkFieldId
+                            peopleTableId && peopleNameFieldId && peopleAppointmentsLinkFieldId ? true : false;
 
     // Use settings menu to hide away table pickers
     const [isShowingSettings, setIsShowingSettings] = useState(!initialSetupDone);
@@ -84,66 +84,68 @@ function ScheduleConflictsBlock() {
             </ViewportConstraint>
         )
     } else {
-        // Get a person's linked appointments and match them with the person
-        const peopleAppointments = people ? people.map(person => {
-            const personLinkedAppointments = person.getCellValue(peopleAppointmentsLinkField);
-            const appointmentIds = personLinkedAppointments.map(a => a.id);
-
-            const personAppointments = appointments ? appointments.filter(a => appointmentIds.includes(a.id)) : [];
-
-            const personAppntmntsObj = {
-                person: person.getCellValue(peopleNameField),
-                appointments: personAppointments
-            };
-            return personAppntmntsObj;
-        }) : [];
-
         // As we loop through person-appointment pairings, store any conflicts found in array
         const conflicts = [];
 
-        // Loop and identify conflicts
-        peopleAppointments.forEach(personAppntmnts => {
-            const { person, appointments } = personAppntmnts;
+        if (appointments) {
+            // Get a person's linked appointments and match them with the person
+            const peopleAppointments = people ? people.map(person => {
+                const personLinkedAppointments = person.getCellValue(peopleAppointmentsLinkField);
+                const appointmentIds = personLinkedAppointments ? personLinkedAppointments.map(a => a.id) : [];
 
-            // Use a Set so that if an appointment is found to conflict with multiple other
-            // appointments, it still only shows in the display once
-            const conflictingRecords = new Set();
-            const appointmentsChecked = [];
-            for (var i=0; i < appointments.length; i++) {
-                let start = new Date(appointments[i].getCellValue(appointmentsStartField));
-                let end = new Date(appointments[i].getCellValue(appointmentsEndField));
-                let appt = appointments[i];
+                const personAppointments = appointments ? appointments.filter(a => appointmentIds.includes(a.id)) : [];
 
-                // since we check each appointment against all others,
-                // we only want to do it once per appointment - we keep track here
-                appointmentsChecked.push(appt.id);
+                const personAppntmntsObj = {
+                    person: person.getCellValue(peopleNameField),
+                    appointments: personAppointments
+                };
+                return personAppntmntsObj;
+            }) : [];
 
-                appointments.forEach(compareAppntmnt => {
-                    // don't check against appointments that have already been checked
-                    if (!appointmentsChecked.includes(compareAppntmnt.id)) {
-                        let compareStart = new Date(compareAppntmnt.getCellValue(appointmentsStartField));
-                        let compareEnd = new Date(compareAppntmnt.getCellValue(appointmentsEndField));
+            // Loop and identify conflicts
+            peopleAppointments.forEach(personAppntmnts => {
+                const { person, appointments } = personAppntmnts;
 
-                        if (
-                            // #1 : Preceeding Overlap
-                            (compareStart > start && compareStart < end) ||
-                            // #2 : Post-ceeding Overlap
-                            (compareEnd > start && compareEnd < end) ||
-                            // #3 : Contained (inclusive)
-                            (compareStart <= start && compareEnd >= end)
-                        ) {
-                            // we found a conflict, so add both records to the Set
-                            conflictingRecords.add(appt).add(compareAppntmnt);
+                // Use a Set so that if an appointment is found to conflict with multiple other
+                // appointments, it still only shows in the display once
+                const conflictingRecords = new Set();
+                const appointmentsChecked = [];
+                for (var i=0; i < appointments.length; i++) {
+                    let start = new Date(appointments[i].getCellValue(appointmentsStartField));
+                    let end = new Date(appointments[i].getCellValue(appointmentsEndField));
+                    let appt = appointments[i];
+
+                    // since we check each appointment against all others,
+                    // we only want to do it once per appointment - we keep track here
+                    appointmentsChecked.push(appt.id);
+
+                    appointments.forEach(compareAppntmnt => {
+                        // don't check against appointments that have already been checked
+                        if (!appointmentsChecked.includes(compareAppntmnt.id)) {
+                            let compareStart = new Date(compareAppntmnt.getCellValue(appointmentsStartField));
+                            let compareEnd = new Date(compareAppntmnt.getCellValue(appointmentsEndField));
+
+                            if (
+                                // #1 : Preceeding Overlap
+                                (compareStart > start && compareStart < end) ||
+                                // #2 : Post-ceeding Overlap
+                                (compareEnd > start && compareEnd < end) ||
+                                // #3 : Contained (inclusive)
+                                (compareStart <= start && compareEnd >= end)
+                            ) {
+                                // we found a conflict, so add both records to the Set
+                                conflictingRecords.add(appt).add(compareAppntmnt);
+                            }
                         }
-                    }
-                });
-            };
+                    });
+                };
 
-            if (conflictingRecords.size > 0) {
-                const conflict = {person: person, conflictingAppointments: [...conflictingRecords]};
-                conflicts.push(conflict);
-            }
-        });
+                if (conflictingRecords.size > 0) {
+                    const conflict = {person: person, conflictingAppointments: [...conflictingRecords]};
+                    conflicts.push(conflict);
+                }
+            });
+        }
 
         // If we have conflicts, display a ConflictContainer with all person-conflict pairings
         // If we have no conflicts, display a NoConflictsHeader
@@ -313,7 +315,13 @@ function SettingsMenu(props) {
                                     size="small"
                                     table={props.appointmentsTable}
                                     globalConfigKey={GlobalConfigKeys.APPOINTMENTS_START_FIELD_ID}
-                                    allowedTypes={[FieldType.DATE, FieldType.DATE_TIME]}
+                                    allowedTypes={[
+                                        FieldType.DATE,
+                                        FieldType.DATE_TIME,
+                                        FieldType.MULTIPLE_LOOKUP_VALUES,
+                                        FieldType.ROLLUP,
+                                        FieldType.FORMULA
+                                    ]}
                                 />
                             </FormField>
                             <FormField label="End field:">
@@ -321,7 +329,13 @@ function SettingsMenu(props) {
                                     size="small"
                                     table={props.appointmentsTable}
                                     globalConfigKey={GlobalConfigKeys.APPOINTMENTS_END_FIELD_ID}
-                                    allowedTypes={[FieldType.DATE, FieldType.DATE_TIME]}
+                                    allowedTypes={[
+                                        FieldType.DATE,
+                                        FieldType.DATE_TIME,
+                                        FieldType.MULTIPLE_LOOKUP_VALUES,
+                                        FieldType.ROLLUP,
+                                        FieldType.FORMULA
+                                    ]}
                                 />
                             </FormField>
                         </Box>
