@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "@airtable/blocks": "0.0.42",
+        "@airtable/blocks": "0.0.51",
         "react": "^16.9.0",
         "react-dom": "^16.9.0"
     },
