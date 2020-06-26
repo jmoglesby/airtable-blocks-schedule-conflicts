@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Heading, Text, Box, expandRecord } from '@airtable/blocks/ui';
+import { Heading, Text, Tooltip, expandRecord } from '@airtable/blocks/ui';
 
 const StyledBox = styled.div`
   padding: 4px;
@@ -15,10 +15,17 @@ const StyledBox = styled.div`
 
 function PersonNameLink(props) {
   return (
-    <StyledBox onClick={() => expandRecord(props.person)}>
-      <Heading marginBottom={-1}>{props.person.getCellValue("Name")}</Heading>
-      <Text textColor="light" fontWeight={300} paddingLeft={3}>conflicts:</Text>
-    </StyledBox>
+    <Tooltip
+      content="Click to expand"
+      placementX={Tooltip.placements.CENTER}
+      placementY={Tooltip.placements.TOP}
+      shouldHideTooltipOnClick={true}
+    >
+      <StyledBox onClick={() => expandRecord(props.person)}>
+        <Heading marginBottom={-1}>{props.person.getCellValue("Name")}</Heading>
+        <Text textColor="light" fontWeight={300} paddingLeft={3}>conflicts:</Text>
+      </StyledBox>
+    </Tooltip>
   );
 }
 
