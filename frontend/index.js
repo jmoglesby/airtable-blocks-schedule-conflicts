@@ -13,8 +13,6 @@ import {
     FieldPickerSynced,
     Button,
     Text,
-    ColorPalette,
-    Dialog,
     ViewportConstraint
 } from '@airtable/blocks/ui';
 import React, {useState} from 'react';
@@ -211,20 +209,9 @@ function NoConflictsHeader({viewSelected}) {
 }
 
 function SettingsMenu(props) {
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-    const resetPeopleFieldKeys = () => {
-        props.globalConfig.setAsync(GlobalConfigKeys.PEOPLE_NAME_FIELD_ID, '');
-        props.globalConfig.setAsync(GlobalConfigKeys.PEOPLE_APPOINTMENTS_LINK_FIELD_ID, '');
-    };
-
     const resetAppointmentFieldKeys = () => {
         props.globalConfig.setAsync(GlobalConfigKeys.APPOINTMENTS_START_FIELD_ID, '');
         props.globalConfig.setAsync(GlobalConfigKeys.APPOINTMENTS_END_FIELD_ID, '');
-    };
-
-    const resetPeopleTableKey = () => {
-        props.globalConfig.setAsync(GlobalConfigKeys.PEOPLE_TABLE_ID, '');
     };
 
     const resetAppointmentsTableKey = () => {
@@ -232,30 +219,6 @@ function SettingsMenu(props) {
         props.globalConfig.setAsync(GlobalConfigKeys.VIEW_ID, '');
         resetAppointmentFieldKeys();
     }
-
-    const peopleCheckTablesAreNotSame = () => {
-        const peopleTable = props.globalConfig.get(GlobalConfigKeys.PEOPLE_TABLE_ID);
-        const appointmentsTable = props.globalConfig.get(GlobalConfigKeys.APPOINTMENTS_TABLE_ID);
-
-        if (peopleTable && peopleTable === appointmentsTable) {
-            setIsDialogOpen(true);
-            resetPeopleTableKey();
-        } else {
-            resetPeopleFieldKeys();
-        }
-    };
-
-    const apptCheckTablesAreNotSame = () => {
-        const peopleTable = props.globalConfig.get(GlobalConfigKeys.PEOPLE_TABLE_ID);
-        const appointmentsTable = props.globalConfig.get(GlobalConfigKeys.APPOINTMENTS_TABLE_ID);
-
-        if (appointmentsTable && appointmentsTable === peopleTable) {
-            setIsDialogOpen(true);
-            resetAppointmentsTableKey();
-        } else {
-            resetAppointmentFieldKeys();
-        }
-    };
 
     const getLinkedApptsTable = () => {
         const linkedApptsFieldId = props.globalConfig.get(GlobalConfigKeys.PEOPLE_APPOINTMENTS_LINK_FIELD_ID);
@@ -319,13 +282,6 @@ function SettingsMenu(props) {
                 {props.appointmentsTable &&
                     <div>
                         <FormField label="The table holding your Events/Bookings is:">
-                            {/* <TablePickerSynced
-                                globalConfigKey={GlobalConfigKeys.APPOINTMENTS_TABLE_ID}
-                                onChange={() => apptCheckTablesAreNotSame()}
-                                size="large"
-                                maxWidth="350px"
-                                disabled={!props.globalConfig.get(GlobalConfigKeys.PEOPLE_TABLE_ID)}
-                            /> */}
                             <Text size="xlarge">
                                 {props.appointmentsTable.name}
                             </Text>
@@ -376,19 +332,6 @@ function SettingsMenu(props) {
                     Done
                 </Button>
             </Box>
-
-            {isDialogOpen && (
-                <Dialog onClose={() => setIsDialogOpen(false)} width="320px">
-                <Dialog.CloseButton />
-                <Heading>❌ Oops!</Heading>
-                <Text variant="paragraph">
-                    You cannot choose the same table in both sections. Please choose a different
-                    table. Note that this block requires two tables that are linked together
-                    with Linked Record fields.
-                </Text>
-                <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
-                </Dialog>
-            )}
         </div>
     );
 }
