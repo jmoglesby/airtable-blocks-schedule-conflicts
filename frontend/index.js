@@ -13,10 +13,12 @@ import {
     FieldPickerSynced,
     Button,
     Text,
-    ViewportConstraint
+    ViewportConstraint,
+    colors
 } from '@airtable/blocks/ui';
 import React, {useState} from 'react';
 import { FieldType } from '@airtable/blocks/models';
+import PersonNameLink from './person_name_link';
 
 const GlobalConfigKeys = {
     VIEW_ID: 'viewId',
@@ -94,7 +96,7 @@ function ScheduleConflictsBlock() {
                 const personAppointments = appointments ? appointments.filter(a => appointmentIds.includes(a.id)) : [];
 
                 const personAppntmntsObj = {
-                    person: person.getCellValue(peopleNameField),
+                    person: person,
                     appointments: personAppointments
                 };
                 return personAppntmntsObj;
@@ -185,8 +187,8 @@ function ConflictContainer({person, records}) {
     }) : null;
 
     return (
-        <Box margin={2} padding={3} backgroundColor="mistyrose" border="thick" borderRadius={5}>
-            <Heading marginBottom={1}>{person}</Heading>
+        <Box margin={2} padding={3} backgroundColor={colors.RED_LIGHT_2} border="thick" borderRadius={5}>
+            <PersonNameLink person={person}/>
             <Box overflowX="auto" paddingRight={3}>
                 {recordsDisplay}
             </Box>
@@ -195,17 +197,23 @@ function ConflictContainer({person, records}) {
 };
 
 function NoConflictsHeader({viewSelected}) {
-    return (
-        <div>
-            {viewSelected &&
-                <Box padding={2}>
-                    <Heading size="large" textColor="light">
-                        No scheduling conflicts found 🎉
-                    </Heading>
-                </Box>
-            }
-        </div>
-    );
+    if (viewSelected) {
+        return (
+            <Box padding={4}>
+                <Heading size="large" textColor="light">
+                    No scheduling conflicts found 🎉
+                </Heading>
+            </Box>
+        );
+    } else {
+        return (
+            <Box padding={4}>
+                <Text size="large" fontWeight={200} textColor="light" fontStyle="italic">
+                    No view selected...
+                </Text>
+            </Box>
+        );
+    }
 }
 
 function SettingsMenu(props) {
