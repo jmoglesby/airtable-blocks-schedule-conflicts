@@ -155,12 +155,14 @@ function ScheduleConflictsBlock() {
                         person={conflict.person}
                         records={conflict.conflictingAppointments}
                     />
-        }) : <NoConflictsHeader />;
+        }) : <NoConflictsHeader viewSelected={globalConfig.get(GlobalConfigKeys.VIEW_ID)}/>;
 
         return (
             <ViewportConstraint minSize={{width: VIEWPORT_MIN_WIDTH, height: VIEWPORT_MIN_HEIGHT}}>
                 <Box paddingX={2} marginX={1}>
-                    <h4>Select {appointmentsTable.name} view to check for conflicts:</h4>
+                    <Text size="xsmall" textColor="light">
+                        View in {appointmentsTable.name} to watch for conflicts:
+                    </Text>
                     <ViewPickerSynced
                         table={appointmentsTable}
                         globalConfigKey={GlobalConfigKeys.VIEW_ID}
@@ -194,13 +196,17 @@ function ConflictContainer({person, records}) {
     );
 };
 
-function NoConflictsHeader() {
+function NoConflictsHeader({viewSelected}) {
     return (
-        <Box padding={2}>
-            <Heading size="large" textColor="light">
-                No scheduling conflicts found 🎉
-            </Heading>
-        </Box>
+        <div>
+            {viewSelected &&
+                <Box padding={2}>
+                    <Heading size="large" textColor="light">
+                        No scheduling conflicts found 🎉
+                    </Heading>
+                </Box>
+            }
+        </div>
     );
 }
 
@@ -224,6 +230,7 @@ function SettingsMenu(props) {
     const resetAppointmentsTableKey = () => {
         props.globalConfig.setAsync(GlobalConfigKeys.APPOINTMENTS_TABLE_ID, '');
         props.globalConfig.setAsync(GlobalConfigKeys.VIEW_ID, '');
+        resetAppointmentFieldKeys();
     }
 
     const peopleCheckTablesAreNotSame = () => {
@@ -250,6 +257,16 @@ function SettingsMenu(props) {
         }
     };
 
+    const getLinkedApptsTable = () => {
+        const linkedApptsFieldId = props.globalConfig.get(GlobalConfigKeys.PEOPLE_APPOINTMENTS_LINK_FIELD_ID);
+        const peopleTableId = props.globalConfig.get(GlobalConfigKeys.PEOPLE_TABLE_ID);
+        const peopleTable = props.base.getTableByIdIfExists(peopleTableId);
+        const linkedApptsField = peopleTable.getFieldByIdIfExists(linkedApptsFieldId);
+        const linkedTableId = linkedApptsField.options.linkedTableId;
+
+        props.globalConfig.setAsync(GlobalConfigKeys.APPOINTMENTS_TABLE_ID, linkedTableId);
+    }
+
     return(
         <div>
             <Heading margin={2}>
@@ -259,7 +276,7 @@ function SettingsMenu(props) {
                 <FormField label="Which table holds the People/Items being scheduled?">
                     <TablePickerSynced
                         globalConfigKey={GlobalConfigKeys.PEOPLE_TABLE_ID}
-                        onChange={() => peopleCheckTablesAreNotSame()}
+                        onChange={() => resetAppointmentsTableKey()}
                         size="large"
                         maxWidth="350px"
                     />
@@ -286,31 +303,36 @@ function SettingsMenu(props) {
                                     ]}
                                 />
                             </FormField>
-                            <FormField label="Appointments linked field:">
+                            <FormField label="Events/Bookings linked field:">
                                 <FieldPickerSynced
                                     size="small"
                                     table={props.peopleTable}
                                     globalConfigKey={GlobalConfigKeys.PEOPLE_APPOINTMENTS_LINK_FIELD_ID}
                                     allowedTypes={[FieldType.MULTIPLE_RECORD_LINKS]}
+                                    onChange={() => getLinkedApptsTable()}
                                 />
                             </FormField>
                         </Box>
                     </div>
                 }
                 <hr/>
-                <FormField label="Which table holds the Events/Bookings?">
-                    <TablePickerSynced
-                        globalConfigKey={GlobalConfigKeys.APPOINTMENTS_TABLE_ID}
-                        onChange={() => apptCheckTablesAreNotSame()}
-                        size="large"
-                        maxWidth="350px"
-                    />
-                </FormField>
                 {props.appointmentsTable &&
                     <div>
+                        <FormField label="The table holding your Events/Bookings is:">
+                            {/* <TablePickerSynced
+                                globalConfigKey={GlobalConfigKeys.APPOINTMENTS_TABLE_ID}
+                                onChange={() => apptCheckTablesAreNotSame()}
+                                size="large"
+                                maxWidth="350px"
+                                disabled={!props.globalConfig.get(GlobalConfigKeys.PEOPLE_TABLE_ID)}
+                            /> */}
+                            <Text size="xlarge">
+                                {props.appointmentsTable.name}
+                            </Text>
+                        </FormField>
                         <Heading size="xsmall" variant="caps">{props.appointmentsTable.name} Fields:</Heading>
                         <Box display="flex" flexDirection="row">
-                            <FormField label="Start field:" marginRight={1}>
+                            <FormField label="Start date/time field:" marginRight={1}>
                                 <FieldPickerSynced
                                     size="small"
                                     table={props.appointmentsTable}
@@ -324,7 +346,7 @@ function SettingsMenu(props) {
                                     ]}
                                 />
                             </FormField>
-                            <FormField label="End field:">
+                            <FormField label="End date/time field:">
                                 <FieldPickerSynced
                                     size="small"
                                     table={props.appointmentsTable}
