@@ -213,8 +213,8 @@ function NoConflictsHeader({viewSelected}) {
                 </Text>
             </Box>
         );
-    }
-}
+    };
+};
 
 function SettingsMenu(props) {
     const resetAppointmentFieldKeys = () => {
@@ -225,7 +225,17 @@ function SettingsMenu(props) {
     const resetAppointmentsTableKey = () => {
         props.globalConfig.setAsync(GlobalConfigKeys.APPOINTMENTS_TABLE_ID, '');
         props.globalConfig.setAsync(GlobalConfigKeys.VIEW_ID, '');
+    };
+
+    const resetPeopleFieldKeys = () => {
+        props.globalConfig.setAsync(GlobalConfigKeys.PEOPLE_NAME_FIELD_ID, '');
+        props.globalConfig.setAsync(GlobalConfigKeys.PEOPLE_APPOINTMENTS_LINK_FIELD_ID, '');
+    }
+
+    const resetTableRelatedGlobalConfigKeys = () => {
+        resetAppointmentsTableKey();
         resetAppointmentFieldKeys();
+        resetPeopleFieldKeys();
     }
 
     const getLinkedApptsTable = () => {
@@ -236,7 +246,7 @@ function SettingsMenu(props) {
         const linkedTableId = linkedApptsField.options.linkedTableId;
 
         props.globalConfig.setAsync(GlobalConfigKeys.APPOINTMENTS_TABLE_ID, linkedTableId);
-    }
+    };
 
     return(
         <div>
@@ -247,7 +257,7 @@ function SettingsMenu(props) {
                 <FormField label="Which table holds the People/Items being scheduled?">
                     <TablePickerSynced
                         globalConfigKey={GlobalConfigKeys.PEOPLE_TABLE_ID}
-                        onChange={() => resetAppointmentsTableKey()}
+                        onChange={() => resetTableRelatedGlobalConfigKeys()}
                         size="large"
                         maxWidth="350px"
                     />
