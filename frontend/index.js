@@ -18,6 +18,7 @@ import {
 } from '@airtable/blocks/ui';
 import React, {useState} from 'react';
 import { FieldType } from '@airtable/blocks/models';
+import PersonNameLink from './person_name_link';
 
 const GlobalConfigKeys = {
     VIEW_ID: 'viewId',
@@ -95,7 +96,7 @@ function ScheduleConflictsBlock() {
                 const personAppointments = appointments ? appointments.filter(a => appointmentIds.includes(a.id)) : [];
 
                 const personAppntmntsObj = {
-                    person: person.getCellValue(peopleNameField),
+                    person: person,
                     appointments: personAppointments
                 };
                 return personAppntmntsObj;
@@ -187,7 +188,7 @@ function ConflictContainer({person, records}) {
 
     return (
         <Box margin={2} padding={3} backgroundColor={colors.RED_LIGHT_2} border="thick" borderRadius={5}>
-            <Heading marginBottom={1}>{person}</Heading>
+            <PersonNameLink person={person}/>
             <Box overflowX="auto" paddingRight={3}>
                 {recordsDisplay}
             </Box>
