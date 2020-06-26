@@ -13,7 +13,8 @@ import {
     FieldPickerSynced,
     Button,
     Text,
-    ViewportConstraint
+    ViewportConstraint,
+    colors
 } from '@airtable/blocks/ui';
 import React, {useState} from 'react';
 import { FieldType } from '@airtable/blocks/models';
@@ -185,7 +186,7 @@ function ConflictContainer({person, records}) {
     }) : null;
 
     return (
-        <Box margin={2} padding={3} backgroundColor="mistyrose" border="thick" borderRadius={5}>
+        <Box margin={2} padding={3} backgroundColor={colors.RED_LIGHT_2} border="thick" borderRadius={5}>
             <Heading marginBottom={1}>{person}</Heading>
             <Box overflowX="auto" paddingRight={3}>
                 {recordsDisplay}
