@@ -195,17 +195,23 @@ function ConflictContainer({person, records}) {
 };
 
 function NoConflictsHeader({viewSelected}) {
-    return (
-        <div>
-            {viewSelected &&
-                <Box padding={2}>
-                    <Heading size="large" textColor="light">
-                        No scheduling conflicts found 🎉
-                    </Heading>
-                </Box>
-            }
-        </div>
-    );
+    if (viewSelected) {
+        return (
+            <Box padding={4}>
+                <Heading size="large" textColor="light">
+                    No scheduling conflicts found 🎉
+                </Heading>
+            </Box>
+        );
+    } else {
+        return (
+            <Box padding={4}>
+                <Text size="large" fontWeight={200} textColor="light" fontStyle="italic">
+                    No view selected...
+                </Text>
+            </Box>
+        );
+    }
 }
 
 function SettingsMenu(props) {
